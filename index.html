@@ -1,41 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NIT Agartala Smart Campus Network Visualizer</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Network Visualizer - M90 Agartala</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/konva@8.4.3/konva.min.js"></script>
 </head>
 <body>
-  <header>
-    <h2>NIT Agartala Smart Campus Visualizer</h2>
-    <div id="clock">--:--:--</div>
-  </header>
-
-  <aside id="toolbox">
-    <h3>Devices</h3>
-    <div id="palette"></div>
-    <button class="btn" id="toggleLinkMode">🔗 Link Mode</button>
-    <button class="btn" id="simulateTraffic">▶️ Simulate</button>
-    <button class="btn" id="clear">🧹 Clear</button>
-  </aside>
-
-  <div id="stageWrap">
-    <div id="stage"></div>
-  </div>
-
-  <aside id="inspector">
-    <h3>Overview</h3>
-    <p>Devices: <span id="statDevices">0</span></p>
-    <p>Links: <span id="statLinks">0</span></p>
-    <p>Alerts: <span id="statAlerts">0</span></p>
-    <h3>Selection</h3>
-    <div id="selection">Nothing selected</div>
-    <h3>Alerts</h3>
-    <div id="alerts"></div>
-  </aside>
-
-  <script src="script.js"></script>
+    <h1>Smart Network Visualizer - M90 Agartala</h1>
+    <div id="container"></div>
+    <button id="simulateBtn">Simulate Traffic</button>
+    <script src="script.js"></script>
 </body>
 </html>
