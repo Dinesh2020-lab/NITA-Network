@@ -1,64 +1,89 @@
-const nodes = document.querySelectorAll(".node");
-const details = document.getElementById("details");
-const toast = document.getElementById("toast");
-
-nodes.forEach((node) => {
-  node.addEventListener("click", () => {
-    details.innerHTML = `<strong>${node.id.toUpperCase()}</strong><br>Status: Online`;
-    showToast(`${node.id} is active`);
-  });
+// Initialize Konva stage
+const stage = new Konva.Stage({
+    container: 'container',
+    width: document.getElementById('container').clientWidth,
+    height: document.getElementById('container').clientHeight
 });
 
-function showToast(msg) {
-  toast.textContent = msg;
-  toast.style.opacity = 1;
-  setTimeout(() => (toast.style.opacity = 0), 3000);
-}
+const layer = new Konva.Layer();
+stage.add(layer);
 
-// Search functionality
-document.getElementById("searchNode").addEventListener("input", (e) => {
-  const query = e.target.value.toLowerCase();
-  nodes.forEach((node) => {
-    if (node.id.includes(query)) {
-      node.setAttribute("fill", "#ff5722");
-    } else {
-      node.setAttribute("fill", "#4cafef");
-    }
-  });
+// Device positions (example layout of M90 Agartala)
+const devices = [
+    { name: 'Router', x: 400, y: 50, color: 'red' },
+    { name: 'Switch', x: 400, y: 150, color: 'orange' },
+    { name: 'Server', x: 600, y: 300, color: 'green' },
+    { name: 'AP1', x: 200, y: 300, color: 'blue' },
+    { name: 'AP2', x: 400, y: 400, color: 'blue' },
+    { name: 'AP3', x: 600, y: 500, color: 'blue' }
+];
+
+// Draw devices
+const deviceNodes = {};
+devices.forEach(d => {
+    const circle = new Konva.Circle({
+        x: d.x,
+        y: d.y,
+        radius: 25,
+        fill: d.color,
+        stroke: 'white',
+        strokeWidth: 3
+    });
+
+    const label = new Konva.Text({
+        x: d.x - 30,
+        y: d.y + 30,
+        text: d.name,
+        fontSize: 14,
+        fill: 'white'
+    });
+
+    layer.add(circle);
+    layer.add(label);
+    deviceNodes[d.name] = circle;
 });
 
-// Conversion
-function convertSpeed() {
-  const mbps = parseFloat(document.getElementById("mbpsInput").value);
-  if (!isNaN(mbps)) {
-    document.getElementById("conversionResult").textContent =
-      `${mbps} Mbps = ${mbpsToMBps(mbps)} MB/s`;
-  }
+// Connect devices with lines (example topology)
+function connect(a, b) {
+    const line = new Konva.Line({
+        points: [a.x(), a.y(), b.x(), b.y()],
+        stroke: 'white',
+        strokeWidth: 2,
+        lineCap: 'round',
+        lineJoin: 'round'
+    });
+    layer.add(line);
 }
 
-// Traffic Monitor
-const canvas = document.getElementById("trafficChart");
-const ctx = canvas.getContext("2d");
-let traffic = [];
+connect(deviceNodes['Router'], deviceNodes['Switch']);
+connect(deviceNodes['Switch'], deviceNodes['Server']);
+connect(deviceNodes['Switch'], deviceNodes['AP1']);
+connect(deviceNodes['Switch'], deviceNodes['AP2']);
+connect(deviceNodes['Switch'], deviceNodes['AP3']);
 
-function drawTraffic() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.beginPath();
-  ctx.moveTo(0, canvas.height);
-  traffic.forEach((val, i) => {
-    ctx.lineTo(i * 10, canvas.height - val);
-  });
-  ctx.strokeStyle = "#0077cc";
-  ctx.stroke();
-}
+layer.draw();
 
-setInterval(() => {
-  if (traffic.length > 25) traffic.shift();
-  traffic.push(Math.random() * canvas.height);
-  drawTraffic();
-}, 1000);
+// Simulation of network traffic
+document.getElementById('simulateBtn').addEventListener('click', () => {
+    const packet = new Konva.Circle({
+        x: deviceNodes['Router'].x(),
+        y: deviceNodes['Router'].y(),
+        radius: 8,
+        fill: 'yellow',
+        stroke: 'black',
+        strokeWidth: 1
+    });
+    layer.add(packet);
+    layer.draw();
 
-// Theme toggle
-document.getElementById("themeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
+    // Animate packet to server
+    const tween = new Konva.Tween({
+        node: packet,
+        duration: 2,
+        x: deviceNodes['Server'].x(),
+        y: deviceNodes['Server'].y(),
+        easing: Konva.Easings.EaseInOut,
+        onFinish: () => packet.destroy()
+    });
+    tween.play();
 });
