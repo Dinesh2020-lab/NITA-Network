@@ -1,58 +1,37 @@
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f1220;
-  color: #fff;
-  display: grid;
-  grid-template-columns: 300px 1fr 300px;
-  grid-template-rows: 60px 1fr;
-  grid-template-areas:
-    "top top top"
-    "left canvas right";
-  height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
 }
 
-header {
-  grid-area: top;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: #12162a;
-  border-bottom: 1px solid #2a3054;
+h1 {
+    margin: 20px 0;
 }
 
-#toolbox {
-  grid-area: left;
-  background: #12162a;
-  padding: 10px;
-  overflow: auto;
+#container {
+    border: 2px solid white;
+    width: 90%;
+    height: 70%;
+    background-color: rgba(255,255,255,0.05);
 }
 
-#stageWrap {
-  grid-area: canvas;
-  position: relative;
-  background: #0b0f24;
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ffffff33;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s;
 }
 
-#inspector {
-  grid-area: right;
-  background: #12162a;
-  padding: 10px;
-  overflow: auto;
-}
-
-.btn {
-  display: block;
-  margin: 5px 0;
-  padding: 6px;
-  background: #1b2040;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn:hover {
-  background: #2a3054;
+button:hover {
+    background-color: #ffffff66;
 }
