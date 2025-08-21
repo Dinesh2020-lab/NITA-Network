@@ -1,158 +1,162 @@
-const $ = (s) => document.querySelector(s);
-const rnd = (a, b) => Math.random() * (b - a) + a;
-const uuid = () => Math.random().toString(36).slice(2, 9);
+// ===== Konva.js Initialization =====
+const width = window.innerWidth * 0.65; // Map container width
+const height = window.innerHeight;
 
-// clock
-setInterval(() => {
-  $("#clock").textContent = new Date().toLocaleTimeString();
-}, 1000);
-
-// Konva setup
 const stage = new Konva.Stage({
-  container: "stage",
-  width: window.innerWidth - 600,
-  height: window.innerHeight - 60,
-});
-const gridLayer = new Konva.Layer();
-const linkLayer = new Konva.Layer();
-const nodeLayer = new Konva.Layer();
-stage.add(gridLayer, linkLayer, nodeLayer);
-
-// Zones for NIT Agartala buildings
-const zones = [
-  {
-    name: "Library",
-    x: 60,
-    y: 60,
-    w: 200,
-    h: 150,
-    color: "rgba(124,58,237,0.1)",
-  },
-  {
-    name: "CSC Building",
-    x: 320,
-    y: 60,
-    w: 200,
-    h: 150,
-    color: "rgba(34,197,94,0.1)",
-  },
-  {
-    name: "ECE Dept",
-    x: 60,
-    y: 250,
-    w: 200,
-    h: 150,
-    color: "rgba(59,130,246,0.1)",
-  },
-  {
-    name: "Mechanical Dept",
-    x: 320,
-    y: 250,
-    w: 200,
-    h: 150,
-    color: "rgba(245,158,11,0.1)",
-  },
-];
-zones.forEach((z) => {
-  const g = new Konva.Group({ x: z.x, y: z.y });
-  g.add(
-    new Konva.Rect({
-      width: z.w,
-      height: z.h,
-      fill: z.color,
-      cornerRadius: 10,
-      stroke: "#2a3054",
-    })
-  );
-  g.add(new Konva.Text({ text: z.name, x: 5, y: 5, fontSize: 14, fill: "#fff" }));
-  gridLayer.add(g);
-});
-gridLayer.draw();
-
-// data
-const state = { nodes: [], links: [], linkMode: false, source: null, alerts: [] };
-const devices = [
-  { type: "Router", icon: "🛜", color: "#7c3aed" },
-  { type: "Switch", icon: "🧮", color: "#06b6d4" },
-  { type: "AP", icon: "📡", color: "#22c55e" },
-  { type: "Server", icon: "🗄", color: "#f59e0b" },
-];
-
-devices.forEach((d) => {
-  const btn = document.createElement("button");
-  btn.className = "btn";
-  btn.textContent = ${d.icon} ${d.type};
-  btn.onclick = () =>
-    addNode(d.type, stage.width() / 2 + rnd(-100, 100), stage.height() / 2 + rnd(-100, 100));
-  $("#palette").appendChild(btn);
+  container: 'mapContainer',
+  width: width,
+  height: height
 });
 
-function addNode(type, x, y) {
-  const meta = devices.find((t) => t.type === type);
-  const id = uuid();
-  const name = ${type}-${state.nodes.filter((n) => n.type === type).length + 1};
-  const g = new Konva.Group({ x, y, draggable: true, id });
-  g.add(new Konva.Circle({ radius: 20, fill: "#111638", stroke: meta.color, strokeWidth: 2 }));
-  g.add(new Konva.Text({ text: meta.icon, fontSize: 20, x: -10, y: -10 }));
-  g.add(new Konva.Text({ text: name, y: 25, fontSize: 12, fill: "#fff" }));
-  nodeLayer.add(g).draw();
-  const node = { id, type, name, group: g };
-  state.nodes.push(node);
-  updateStats();
-  g.on("click", () => handleNodeClick(node));
-  g.on("dragmove", () => updateLinks(node));
-}
+const layer = new Konva.Layer();
+stage.add(layer);
 
-function handleNodeClick(node) {
-  $("#selection").textContent = node.name;
-  if (!state.linkMode) return;
-  if (!state.source) {
-    state.source = node;
-    return;
-  }
-  if (state.source.id !== node.id) {
-    createLink(state.source, node);
-  }
-  state.source = null;
-  state.linkMode = false;
-}
+// ===== Define campus nodes =====
+const nodes = {
+  library: { x: 150, y: 150 },
+  csc: { x: 400, y: 150 },
+  ece: { x: 650, y: 150 },
+  cse: { x: 300, y: 300 },
+  hostel: { x: 500, y: 350 },
+  admin: { x: 150, y: 400 },
+  auditorium: { x: 650, y: 450 },
+  maingate: { x: 50, y: 500 },
+};
 
-function createLink(a, b) {
-  const line = new Konva.Line({
-    points: [a.group.x(), a.group.y(), b.group.x(), b.group.y()],
-    stroke: "#4f46e5",
+// ===== Create nodes with labels =====
+Object.keys(nodes).forEach(id => {
+  const { x, y } = nodes[id];
+
+  const circle = new Konva.Circle({
+    x: x,
+    y: y,
+    radius: 25,
+    fill: '#4cafef',
+    stroke: '#0077cc',
     strokeWidth: 2,
+    id: id,
+    draggable: false
   });
-  linkLayer.add(line).draw();
-  state.links.push({ id: uuid(), a: a.id, b: b.id, line });
-  updateStats();
+
+  const label = new Konva.Text({
+    x: x - 30,
+    y: y + 30,
+    text: id.charAt(0).toUpperCase() + id.slice(1),
+    fontSize: 14,
+    fontFamily: 'Arial',
+    fill: '#000'
+  });
+
+  layer.add(circle);
+  layer.add(label);
+
+  // Node click event
+  circle.on('click', () => {
+    document.getElementById('details').innerHTML =
+      `<strong>${id.toUpperCase()}</strong><br>Status: Online`;
+    showToast(`${id} is active`);
+  });
+});
+
+layer.draw();
+
+// ===== Toast Notification =====
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.opacity = 1;
+  setTimeout(() => (toast.style.opacity = 0), 3000);
 }
 
-function updateLinks(node) {
-  state.links.forEach((l) => {
-    if (l.a === node.id || l.b === node.id) {
-      const n1 = state.nodes.find((n) => n.id === l.a);
-      const n2 = state.nodes.find((n) => n.id === l.b);
-      l.line.points([n1.group.x(), n1.group.y(), n2.group.x(), n2.group.y()]);
+// ===== Theme Toggle =====
+document.getElementById('themeToggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
+
+// ===== Unit Conversion =====
+function convertSpeed() {
+  const mbps = parseFloat(document.getElementById('mbpsInput').value);
+  if (!isNaN(mbps)) {
+    document.getElementById('conversionResult').textContent =
+      `${mbps} Mbps = ${mbpsToMBps(mbps)} MB/s`;
+  }
+}
+
+// ===== Search Node =====
+document.getElementById('searchNode').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase();
+  layer.find('Circle').forEach(circle => {
+    if (circle.id().includes(query)) {
+      circle.fill('#ff5722');
+    } else {
+      circle.fill('#4cafef');
     }
   });
-  linkLayer.batchDraw();
+  layer.draw();
+});
+
+// ===== Traffic Monitor (Dummy Data) =====
+const canvas = document.getElementById('trafficChart');
+const ctx = canvas.getContext('2d');
+let traffic = [];
+
+function drawTraffic() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.beginPath();
+  ctx.moveTo(0, canvas.height);
+  traffic.forEach((val, i) => {
+    ctx.lineTo(i * 10, canvas.height - val);
+  });
+  ctx.strokeStyle = '#0077cc';
+  ctx.stroke();
 }
 
-function updateStats() {
-  $("#statDevices").textContent = state.nodes.length;
-  $("#statLinks").textContent = state.links.length;
-  $("#statAlerts").textContent = state.alerts.length;
-}
+setInterval(() => {
+  if (traffic.length > 25) traffic.shift();
+  traffic.push(Math.random() * canvas.height);
+  drawTraffic();
+}, 1000);
 
-$("#toggleLinkMode").onclick = () => {
-  state.linkMode = !state.linkMode;
-};
-$("#simulateTraffic").onclick = () => alert("Traffic simulation placeholder");
-$("#clear").onclick = () => {
-  state.nodes.forEach((n) => n.group.destroy());
-  state.links.forEach((l) => l.line.destroy());
-  state.nodes = [];
-  state.links = [];
-  updateStats();
-};
+// ===== Animated Network Links =====
+const connections = [
+  ['library', 'csc'],
+  ['csc', 'ece'],
+  ['cse', 'hostel'],
+  ['hostel', 'admin'],
+  ['admin', 'auditorium'],
+  ['auditorium', 'maingate']
+];
+
+connections.forEach(([from, to]) => {
+  const fromNode = nodes[from];
+  const toNode = nodes[to];
+
+  const line = new Konva.Line({
+    points: [fromNode.x, fromNode.y, toNode.x, toNode.y],
+    stroke: 'gray',
+    strokeWidth: 2,
+    lineJoin: 'round',
+    lineCap: 'round',
+    dash: [10, 5],
+    opacity: 0.5,
+    id: `${from}-${to}`
+  });
+
+  layer.add(line);
+  animateLine(line);
+});
+
+function animateLine(line) {
+  const totalLength = line.getClientRect().width;
+  let currentLength = 0;
+
+  const anim = new Konva.Animation(frame => {
+    currentLength += 2;
+    if (currentLength > totalLength) {
+      currentLength = 0;
+    }
+    line.dashOffset(currentLength);
+  }, layer);
+
+  anim.start();
+}
