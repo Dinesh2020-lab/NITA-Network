@@ -1,44 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>live code editor</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://kit.fontawesome.com/4eacb40c1f.js" crossorigin="anonymous"></script>"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NIT Agartala Smart Campus Network Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    
-    <div class="left">
-      <label ><i class="fa-brands fa-html5"></i>HTML</label>
-      <textarea id="html-code"onkeyup="run()"></textarea>
+  <header>
+    <h2>NIT Agartala Smart Campus Visualizer</h2>
+    <div id="clock">--:--:--</div>
+  </header>
 
-      <label ><i class="fa-brands fa-css"></i>CSS</label>
-      <textarea id="css-code"onkeyup="run()"></textarea>
+  <aside id="toolbox">
+    <h3>Devices</h3>
+    <div id="palette"></div>
+    <button class="btn" id="toggleLinkMode">🔗 Link Mode</button>
+    <button class="btn" id="simulateTraffic">▶️ Simulate</button>
+    <button class="btn" id="clear">🧹 Clear</button>
+  </aside>
 
-      <label ><i class="fa-brands fa-js"></i>JAVASCRIPT</label>
-      <textarea id="js-code"onkeyup="run()"></textarea>
-      
-    
-    </div>
-      <div class="right">
-        <label ><i class="fa-solid fa-play"></i>Output</label>
-        <iframe id="output"></iframe>
-      </div>   
-      </div>
-      <script>
-        function run(){
-          let htmlCode = document.getElementById("html-code").value;
-          let cssCode = document.getElementById("css-code").value;
-          let jsCode = document.getElementById("js-code").value;
-          let output = document.getElementById("output");
+  <div id="stageWrap">
+    <div id="stage"></div>
+  </div>
 
-          output.contentDocument.body.innerHTML = htmlCode+ "<style>"+ cssCode+ "</style>";
-          output.contentWindow.eval(jsCode);
+  <aside id="inspector">
+    <h3>Overview</h3>
+    <p>Devices: <span id="statDevices">0</span></p>
+    <p>Links: <span id="statLinks">0</span></p>
+    <p>Alerts: <span id="statAlerts">0</span></p>
+    <h3>Selection</h3>
+    <div id="selection">Nothing selected</div>
+    <h3>Alerts</h3>
+    <div id="alerts"></div>
+  </aside>
 
-        }
-      </script>
-
-      
+  <script src="script.js"></script>
 </body>
 </html>
